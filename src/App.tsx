@@ -1,40 +1,31 @@
+import { List, ListItem } from '@chakra-ui/react';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import icon from '../assets/icon.svg';
+import { ApiService } from './services/apiService';
+
+const Test = () => {
+  React.useEffect(() => {
+    const async = async () => {
+      const api = new ApiService();
+
+      const categories = await api.getCategoryList();
+      // console.log(categories);
+    };
+    async();
+  });
+
+  return (
+    <List spacing={2}>
+      <ListItem>Yes</ListItem>
+    </List>
+  );
+};
 
 const Hello = () => {
   return (
     <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+      <Test />
     </div>
   );
 };
