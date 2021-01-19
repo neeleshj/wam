@@ -1,23 +1,43 @@
 import { List, ListItem } from '@chakra-ui/react';
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import icon from '../assets/icon.svg';
-import { ApiService } from './services/apiService';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { ApiService, Category } from './services/apiService';
 
-const Test = () => {
+const CategoryListItem = ({ data }: { data: Category }): JSX.Element => {
+  const [showChildren, setShowChildren] = React.useState(false);
+
+  const nested = (data.childGameCategorys || []).map((c) => {
+    return <CategoryListItem key={c.id} data={c} />;
+  });
+
+  return (
+    <>
+      <ListItem onClick={() => setShowChildren(!showChildren)}>
+        {data.name}
+      </ListItem>
+      {showChildren && nested}
+    </>
+  );
+};
+
+const Categories = () => {
+  const [categories, setCategories] = React.useState([] as Category[]);
+
   React.useEffect(() => {
     const async = async () => {
       const api = new ApiService();
 
-      const categories = await api.getCategoryList();
-      // console.log(categories);
+      const data = await api.getCategoryList();
+      setCategories(data);
     };
     async();
   });
 
   return (
     <List spacing={2}>
-      <ListItem>Yes</ListItem>
+      {categories.map((category) => {
+        return <CategoryListItem key={category.id} data={category} />;
+      })}
     </List>
   );
 };
@@ -25,7 +45,7 @@ const Test = () => {
 const Hello = () => {
   return (
     <div>
-      <Test />
+      <Categories />
     </div>
   );
 };

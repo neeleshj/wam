@@ -4,8 +4,8 @@ export const WOW_GAME_ID = 1;
 
 // https://twitchappapi.docs.apiary.io/
 const BASE_URL = 'https://addons-ecs.forgesvc.net/api/v2';
-// const ENDPOINT_GET_GAMES_LIST = '/game?supportsAddons=true';
-// const ENDPOINT_GET_GAME_INFO = (gameId: number) => `/game/${gameId}`;
+const ENDPOINT_GET_GAMES_LIST = '/game?supportsAddons=true';
+const ENDPOINT_GET_GAME_INFO = (gameId: number) => `/game/${gameId}`;
 const ENDPOINT_GET_FEATURED = '/addon/featured';
 const ENDPIINT_GET_CATEGORY_LIST = '/category';
 
@@ -17,7 +17,7 @@ interface GetFeaturedOptions {
   updatedCount: number;
 }
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   slug: string;
