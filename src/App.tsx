@@ -1,52 +1,111 @@
-import { List, ListItem } from '@chakra-ui/react';
+import {
+  Flex,
+  VStack,
+  Image,
+  Text,
+  HStack,
+  Tag,
+  TagLabel,
+  Stat,
+  StatLabel,
+  StatNumber,
+} from '@chakra-ui/react';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { ApiService, Category } from './services/apiService';
+import { Addon, Attachment, Category } from './models/addon';
+import { CurseForgeProvider } from './providers/curseForgeProvider';
 
-const CategoryListItem = ({ data }: { data: Category }): JSX.Element => {
-  const [showChildren, setShowChildren] = React.useState(false);
-
-  const nested = (data.childGameCategorys || []).map((c) => {
-    return <CategoryListItem key={c.id} data={c} />;
-  });
-
-  return (
-    <>
-      <ListItem onClick={() => setShowChildren(!showChildren)}>
-        {data.name}
-      </ListItem>
-      {showChildren && nested}
-    </>
-  );
-};
-
-const Categories = () => {
-  const [categories, setCategories] = React.useState([] as Category[]);
-
-  React.useEffect(() => {
-    const async = async () => {
-      const api = new ApiService();
-
-      const data = await api.getCategoryList();
-      setCategories(data);
-    };
-    async();
-  });
+const AddonListItem = ({ data }: { data: Addon }) => {
+  const getDefaultAttachment = () => {
+    return data.attachments.filter((attachment: Attachment) => {
+      return attachment.isDefault;
+    })[0] as Attachment;
+  };
 
   return (
-    <List spacing={2}>
-      {categories.map((category) => {
-        return <CategoryListItem key={category.id} data={category} />;
-      })}
-    </List>
+    <Flex direction="row" width="100%" px="8px" py="5px">
+      <Image
+        boxSize="100px"
+        src={getDefaultAttachment().thumbnailUrl}
+        alt={getDefaultAttachment().description}
+        mr="2rem"
+      />
+      <Flex direction="column" width="100%" justifyContent="start">
+        <Flex width="100%" alignItems="center" justifyContent="space-between">
+          <Text fontWeight="bold" fontSize="1.5rem">
+            {data.name}
+          </Text>
+          <Text fontWeight="light" fontSize="1rem" color="grey">
+            {data.authors[0].name}
+          </Text>
+        </Flex>
+        <HStack>
+          {data.categories.map((category) => {
+            return (
+              <Tag size="sm" key={category.categoryId}>
+                <TagLabel>{category.name}</TagLabel>
+              </Tag>
+            );
+          })}
+        </HStack>
+        <HStack spacing={2}>
+          <Stat>
+            <StatLabel>Rank</StatLabel>
+            <StatNumber>{data.gamePopularityRank}</StatNumber>
+          </Stat>
+          <Stat>
+            <StatLabel>Downloads</StatLabel>
+            <StatNumber>
+              {new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: 2,
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(data.downloadCount)}
+            </StatNumber>
+          </Stat>
+
+          <Stat>
+            <StatLabel>Created</StatLabel>
+            <StatNumber>
+              {new Date(data.dateCreated).toLocaleDateString()}
+            </StatNumber>
+          </Stat>
+
+          <Stat>
+            <StatLabel>Updated</StatLabel>
+            <StatNumber>
+              {new Date(data.dateModified).toLocaleDateString()}
+            </StatNumber>
+          </Stat>
+        </HStack>
+      </Flex>
+    </Flex>
   );
 };
 
 const Hello = () => {
+  const [data, setData] = React.useState([] as Addon[]);
+
+  React.useEffect(() => {
+    const async = async () => {
+      const curse = new CurseForgeProvider();
+      const addons = await curse.search({
+        searchFilter: '',
+        pageSize: 10,
+        index: 0,
+      });
+
+      setData(addons);
+    };
+    async();
+  }, []);
+
   return (
-    <div>
-      <Categories />
-    </div>
+    <VStack spacing="10px">
+      {data.map((item) => {
+        return <AddonListItem key={item.id} data={item} />;
+      })}
+    </VStack>
   );
 };
 

@@ -1,13 +1,14 @@
 import axios, { AxiosResponse } from 'axios';
+import { Search } from 'history';
+import { Addon } from '../models/addon';
 
 export const WOW_GAME_ID = 1;
 
 // https://twitchappapi.docs.apiary.io/
 const BASE_URL = 'https://addons-ecs.forgesvc.net/api/v2';
-const ENDPOINT_GET_GAMES_LIST = '/game?supportsAddons=true';
-const ENDPOINT_GET_GAME_INFO = (gameId: number) => `/game/${gameId}`;
 const ENDPOINT_GET_FEATURED = '/addon/featured';
-const ENDPIINT_GET_CATEGORY_LIST = '/category';
+const ENDPOINT_GET_CATEGORY_LIST = '/category';
+const ENDPOINT_SEARCH = '/addon/search?';
 
 interface GetFeaturedOptions {
   GameId: number;
@@ -15,6 +16,15 @@ interface GetFeaturedOptions {
   featuredCount: number;
   popularCount: number;
   updatedCount: number;
+}
+
+export interface SearchOptions {
+  gameId?: number;
+  searchFilter: string;
+  pageSize: number;
+  index: number;
+  categoryID?: number;
+  sort?: number;
 }
 
 export interface Category {
@@ -29,10 +39,10 @@ export interface Category {
   childGameCategorys?: Category[];
 }
 
-export class ApiService {
+export class CurseForgeProvider {
   async getFeaturedAddons(
     options: GetFeaturedOptions = {
-      GameId: 1,
+      GameId: WOW_GAME_ID,
       addonIds: [],
       featuredCount: 10,
       popularCount: 10,
@@ -49,8 +59,8 @@ export class ApiService {
     }
   }
 
-  async getCategoryList(gameId = 1) {
-    const url = `${BASE_URL}${ENDPIINT_GET_CATEGORY_LIST}`;
+  async getCategoryList(gameId = WOW_GAME_ID) {
+    const url = `${BASE_URL}${ENDPOINT_GET_CATEGORY_LIST}`;
 
     try {
       const response: AxiosResponse = await axios.get(url);
@@ -80,6 +90,22 @@ export class ApiService {
       }
 
       return rootCategories;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async search(options: SearchOptions): Promise<Addon[]> {
+    options.gameId = WOW_GAME_ID;
+    const searchParams = Object.entries(options)
+      .map(([key, val]) => `${key}=${val}`)
+      .join('&');
+
+    const url = BASE_URL.concat(ENDPOINT_SEARCH, searchParams);
+
+    try {
+      const response: AxiosResponse = await axios.get(url);
+      return response.data as Addon[];
     } catch (error) {
       throw new Error(error);
     }
