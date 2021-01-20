@@ -59,7 +59,7 @@ export class CurseForgeProvider {
     }
   }
 
-  async getCategoryList(gameId = WOW_GAME_ID) {
+  async getCategoryList(gameId = WOW_GAME_ID): Promise<Category[]> {
     const url = `${BASE_URL}${ENDPOINT_GET_CATEGORY_LIST}`;
 
     try {
@@ -106,6 +106,26 @@ export class CurseForgeProvider {
     try {
       const response: AxiosResponse = await axios.get(url);
       return response.data as Addon[];
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getCategoryId(name: string | string[]): Promise<number | undefined> {
+    if (name === 'All Categories') return undefined;
+    const url = `${BASE_URL}${ENDPOINT_GET_CATEGORY_LIST}`;
+
+    try {
+      // TODO this is repeated
+      const response: AxiosResponse = await axios.get(url);
+
+      const unsortedCategories: Category[] = response.data.filter(
+        (category: Category) => category.gameId === WOW_GAME_ID
+      );
+
+      return unsortedCategories.filter((category) => {
+        return category.name === name && category.id;
+      })[0].id;
     } catch (error) {
       throw new Error(error);
     }

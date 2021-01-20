@@ -81,7 +81,7 @@ export interface LatestFile {
   gameVersionFlavor: string;
 }
 
-export interface Category {
+export interface AddonCategory {
   categoryId: number;
   name: string;
   url: string;
@@ -123,7 +123,7 @@ export interface Addon {
   defaultFileId: number;
   downloadCount: number;
   latestFiles: LatestFile[];
-  categories: Category[];
+  categories: AddonCategory[];
   status: number;
   primaryCategoryId: number;
   categorySection: CategorySection;
