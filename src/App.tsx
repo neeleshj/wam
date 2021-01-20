@@ -254,6 +254,7 @@ const Hello = () => {
       setData(addons);
     };
     async();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 
   const onCategoryChange = async (value: string | string[]) => {

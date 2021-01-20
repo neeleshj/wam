@@ -1,22 +1,21 @@
 import axios, { AxiosResponse } from 'axios';
-import { Search } from 'history';
 import { Addon } from '../models/addon';
 
 export const WOW_GAME_ID = 1;
 
 // https://twitchappapi.docs.apiary.io/
 const BASE_URL = 'https://addons-ecs.forgesvc.net/api/v2';
-const ENDPOINT_GET_FEATURED = '/addon/featured';
+// const ENDPOINT_GET_FEATURED = '/addon/featured';
 const ENDPOINT_GET_CATEGORY_LIST = '/category';
 const ENDPOINT_SEARCH = '/addon/search?';
 
-interface GetFeaturedOptions {
-  GameId: number;
-  addonIds: number[];
-  featuredCount: number;
-  popularCount: number;
-  updatedCount: number;
-}
+// interface GetFeaturedOptions {
+//   GameId: number;
+//   addonIds: number[];
+//   featuredCount: number;
+//   popularCount: number;
+//   updatedCount: number;
+// }
 
 export interface SearchOptions {
   gameId?: number;
@@ -40,24 +39,23 @@ export interface Category {
 }
 
 export class CurseForgeProvider {
-  async getFeaturedAddons(
-    options: GetFeaturedOptions = {
-      GameId: WOW_GAME_ID,
-      addonIds: [],
-      featuredCount: 10,
-      popularCount: 10,
-      updatedCount: 10,
-    }
-  ) {
-    const url = `${BASE_URL}${ENDPOINT_GET_FEATURED}`;
+  // async getFeaturedAddons(
+  //   options: GetFeaturedOptions = {
+  //     GameId: WOW_GAME_ID,
+  //     addonIds: [],
+  //     featuredCount: 10,
+  //     popularCount: 10,
+  //     updatedCount: 10,
+  //   }
+  // ) {
+  //   const url = `${BASE_URL}${ENDPOINT_GET_FEATURED}`;
 
-    try {
-      const response: AxiosResponse = await axios.post(url, options);
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  //   try {
+  //     const response: AxiosResponse = await axios.post(url, options);
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // }
 
   async getCategoryList(gameId = WOW_GAME_ID): Promise<Category[]> {
     const url = `${BASE_URL}${ENDPOINT_GET_CATEGORY_LIST}`;
