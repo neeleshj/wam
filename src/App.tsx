@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Addon, Attachment } from './models/addon';
+import { Addon, AddonCategory, Attachment } from './models/addon';
 import { Category, CurseForgeProvider } from './providers/curseForgeProvider';
 
 const AddonListItem = ({ data }: { data: Addon }) => {
@@ -54,14 +54,22 @@ const AddonListItem = ({ data }: { data: Addon }) => {
           </Text>
         </Flex>
         <HStack>
-          {data.categories.map((category) => {
+          {[
+            ...new Map(
+              data.categories.map((item: AddonCategory) => [
+                item.categoryId,
+                item,
+              ])
+            ).values(),
+          ].map((category) => {
             return (
-              <Tag size="sm" key={category.categoryId}>
+              <Tag size="sm" key={`${data.id}_${category.categoryId}`}>
                 <TagLabel>{category.name}</TagLabel>
               </Tag>
             );
           })}
         </HStack>
+        <Text>{data.summary}</Text>
         <HStack spacing={2}>
           <Stat>
             <StatLabel>Rank</StatLabel>
@@ -236,9 +244,78 @@ const CategoryFilter = ({
   );
 };
 
+// 1 - popularity/rank ?
+// 2 - updated
+// 3 - ????
+// 4 - ???
+// 5 - download count
+// 6 - ???
+
+interface SortFilterProps {
+  // eslint-disable-next-line react/require-default-props
+  onSortChange?: (value: number) => void;
+}
+
+const SortFilter = ({ onSortChange = () => {} }: SortFilterProps) => {
+  const [selected, setSelected] = React.useState<string>('Popularity');
+
+  const onChange = (value: string | string[]) => {
+    setSelected(value as string);
+    switch (value as string) {
+      case 'Popularity':
+        onSortChange(1);
+        break;
+      case 'Last Updated':
+        onSortChange(2);
+        break;
+      case 'Download Count':
+        onSortChange(5);
+        break;
+      default:
+        onSortChange(1);
+    }
+  };
+
+  return (
+    <Menu closeOnSelect>
+      <MenuButton
+        minWidth="225px"
+        px={4}
+        py={2}
+        transition="all 0.2s"
+        borderRadius="md"
+        borderWidth="1px"
+        _hover={{ bg: 'gray.100' }}
+        _expanded={{ bg: 'red.200' }}
+        _focus={{ outline: 0, boxShadow: 'outline' }}
+      >
+        {selected}
+      </MenuButton>
+      <MenuList>
+        <MenuOptionGroup
+          type="radio"
+          defaultValue="Popularity"
+          onChange={onChange}
+        >
+          <MenuItemOption key={1} value="Popularity">
+            Popularity
+          </MenuItemOption>
+          <MenuItemOption key={2} value="Last Updated">
+            Last Updated
+          </MenuItemOption>
+          <MenuItemOption key={5} value="Download Count">
+            Download Count
+          </MenuItemOption>
+        </MenuOptionGroup>
+      </MenuList>
+    </Menu>
+  );
+};
+
 const Hello = () => {
   const [data, setData] = React.useState<Addon[]>([]);
   const [category, setCategory] = React.useState<number | undefined>();
+  const [sort, setSort] = React.useState<number | undefined>();
 
   const curse = new CurseForgeProvider(); // TODO this could be passed down
 
@@ -249,22 +326,28 @@ const Hello = () => {
         pageSize: 10,
         index: 0,
         categoryID: category,
+        sort,
       });
 
       setData(addons);
     };
     async();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category]);
+  }, [category, sort]);
 
   const onCategoryChange = async (value: string | string[]) => {
     const categoryId = await curse.getCategoryId(value);
     setCategory(categoryId);
   };
 
+  const onSortChange = async (value: number) => {
+    setSort(value);
+  };
+
   return (
     <>
       <CategoryFilter onCategoryChange={onCategoryChange} />
+      <SortFilter onSortChange={onSortChange} />
       <VStack spacing="10px">
         {data.map((item) => {
           return <AddonListItem key={item.name} data={item} />;
