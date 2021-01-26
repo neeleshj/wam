@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Addon } from '../models/addon';
+import { Addon } from '../types';
 
 export const WOW_GAME_ID = 1;
 

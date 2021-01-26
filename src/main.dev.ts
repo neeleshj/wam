@@ -72,11 +72,18 @@ const createWindow = async () => {
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
-    webPreferences: {
-      nodeIntegration: true,
-    },
+    webPreferences:
+      (process.env.NODE_ENV === 'development' ||
+        process.env.E2E_BUILD === 'true') &&
+      process.env.ERB_SECURE !== 'true'
+        ? {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+          }
+        : {
+            preload: path.join(__dirname, 'dist/renderer.prod.js'),
+          },
   });
-
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // @TODO: Use 'ready-to-show' event
