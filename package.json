@@ -257,7 +257,7 @@
     "electron-updater": "^4.3.4",
     "framer-motion": "^3.2.1",
     "history": "^5.0.0",
-    "protobufjs": "^6.10.2",
+    "protobufjs": "^7.2.4",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
